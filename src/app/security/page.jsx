@@ -19,14 +19,19 @@ const SecurityPage = () => {
 
     const handleAddStaff = async () => {
         try {
+            let pictureUrl = "";
+
             // Upload the picture to Cloudinary if a file is selected
             if (file) {
-                const pictureUrl = await UploadToCloudinary(file);
-                setStaffData((prev) => ({ ...prev, picture: pictureUrl }));
+                pictureUrl = await UploadToCloudinary(file);
+                console.log("Picture URL:", pictureUrl);
             }
 
-            // Send staff data to the backend
-            await axios.post("https://attendance-robotics-mvp-backend.vercel.app/api/staff", staffData);
+            // Update staffData with the picture URL before sending
+            const updatedStaffData = { ...staffData, picture: pictureUrl };
+
+            // Send updated staff data to the backend
+            await axios.post("https://attendance-robotics-mvp-backend.vercel.app/api/staff", updatedStaffData);
 
             // Close modal and reset staff data
             setModalIsOpen(false);
