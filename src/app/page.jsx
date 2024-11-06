@@ -4,43 +4,70 @@ import { useRouter } from "next/navigation";
 import useSWR from "swr";
 import Modal from "./components/Modal";
 
+// Helper function for fetching data
 const fetcher = (url) => fetch(url).then((res) => res.json());
 
 function Main() {
     const router = useRouter();
 
     // Fetch attendance data using SWR
-    const { data, error } = useSWR(
+    const { data: attendanceData, error: attendanceError } = useSWR(
         "https://attendance-robotics-mvp-backend.vercel.app/api/attendance",
         fetcher,
-        {
-            refreshInterval: 1000,
-        }
+        { refreshInterval: 300 }
     );
 
-    // Handle loading and error states
-    if (error) return <div>Failed to load attendance data</div>;
-    if (!data) return <div>Loading...</div>;
-
     // Get the last entry from the attendance data
-    const lastEntry = data[data.length - 1];
+    const lastEntry = attendanceData ? attendanceData[attendanceData.length - 1] : null;
+
+    // Fetch staff data if `lastEntry` is available
+    const { data: staffData, error: staffError } = useSWR(
+        lastEntry ? `https://attendance-robotics-mvp-backend.vercel.app/api/staff/${lastEntry.staffID}` : null,
+        fetcher
+    );
+
+    // Loading and error states
+    if (attendanceError || staffError) return <div className="text-center text-red-500 mt-4">Failed to load data</div>;
+    if (!attendanceData) return <div className="text-center mt-4">Loading...</div>;
 
     return (
         <>
-            <button className="text-2xl m-2 font-bold" onClick={() => router.push("/security")}>
-                &larr;
+            <button
+                className="text-2xl m-2 font-bold text-amber-500"
+                onClick={() => router.push("/security")}
+            >
+                &larr; Back to Security
             </button>
-            <div className="flex flex-col w-10/12 mx-auto gap-16 px-8 mt-20 font-inter">
+            <div className="flex flex-col w-10/12 mx-auto gap-16 px-8 mt-12 font-inter">
                 
-                
-                {/* Display last attendance entry */}
+                {/* Last Attendance Entry */}
                 {lastEntry && (
-                    <div className="ml-4 flex flex-col gap-4 mt-8">
-                        <h3 className="text-lg font-bold">Last Attendance Entry</h3>
-                        <p><span className="font-bold">Name:</span> {lastEntry.name}</p>
-                        <p><span className="font-bold">Date:</span> {new Date(lastEntry.date).toLocaleString()}</p>
-                        <p><span className="font-bold">Status:</span> {lastEntry.status}</p>
-                        {/* Add more fields as needed from the last entry */}
+                    <div className="bg-white shadow-lg rounded-lg p-6 flex flex-col items-center gap-4 mt-8 border border-gray-200">
+                        <h3 className="text-2xl font-bold text-gray-700">Last Attendance Entry</h3>
+                        
+                        {/* Display staff picture */}
+                        {staffData?.picture && (
+                            <img
+                                src={staffData.picture}
+                                alt="Staff profile"
+                                className="w-24 h-24 rounded-full border border-gray-300"
+                            />
+                        )}
+
+                        <div className="text-lg text-gray-600">
+                            <p>
+                                <span className="font-semibold">Name:</span> {staffData?.name || "N/A"}
+                            </p>
+                            <p>
+                                <span className="font-semibold">Date:</span> {new Date(lastEntry.date).toLocaleString()}
+                            </p>
+                            <p>
+                                <span className="font-semibold">Role:</span> {staffData?.role || "N/A"}
+                            </p>
+                            <p>
+                                <span className="font-semibold">Department:</span> {staffData?.department || "N/A"}
+                            </p>
+                        </div>
                     </div>
                 )}
             </div>
