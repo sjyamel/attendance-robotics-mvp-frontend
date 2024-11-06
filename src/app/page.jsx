@@ -12,7 +12,10 @@ function Main() {
     // Fetch attendance data using SWR
     const { data, error } = useSWR(
         "https://attendance-robotics-mvp-backend.vercel.app/api/attendance",
-        fetcher
+        fetcher,
+        {
+            refreshInterval: 1000,
+        }
     );
 
     // Handle loading and error states
