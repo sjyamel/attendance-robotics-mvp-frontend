@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import useSWR from "swr";
 import Modal from "./components/Modal";
+import { FaChevronLeft } from "react-icons/fa";
 
 // Helper function for fetching data
 const fetcher = (url) => fetch(url).then((res) => res.json());
@@ -33,12 +34,12 @@ function Main() {
     return (
         <>
             <button
-                className="text-2xl m-2 font-bold text-amber-500"
+                className="text-2xl mt-4 m-2 font-bold text-black"
                 onClick={() => router.push("/security")}
             >
-                &larr; Back to Security
+               <FaChevronLeft/>
             </button>
-            <div className="flex flex-col w-10/12 mx-auto gap-16 px-8 mt-12 font-inter">
+            <div className="flex flex-col w-full mx-auto gap-16 px-8 mt-12 font-inter">
                 
                 {/* Last Attendance Entry */}
                 {lastEntry && (

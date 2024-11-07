@@ -20,7 +20,7 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body style={{ backgroundColor: "white", color: "black" }}
+      <body style={{ backgroundColor: "whitesmoke", color: "black" }}
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         {children}
